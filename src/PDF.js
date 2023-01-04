@@ -272,7 +272,7 @@ function PDF(props){
                                         key={`pageno_${num}`}
                                         onRenderSuccess={()=>{
                                             // setPagesLoaded(true)
-                                            updateAnnotations(GetLocalStorage(props.id))
+                                            updateAnnotations(KeyExists(props.id)?GetLocalStorage(props.id):[])
                                         }}/>
                                 )
                             })
