@@ -1,9 +1,12 @@
-import {Document, Page} from 'react-pdf/dist/esm/entry.webpack5'
+import {Document, Page, pdfjs} from 'react-pdf/dist/esm/entry.webpack5'
 import {useState, useEffect} from 'react'
 import './PDF.css'
 import CrossLogo from './cross.png'
 import { GetPageYCoordinateRelativeDocument, GetPageHeight} from './DocPageHelper.js'
 import { SaveLocalStorage, GetLocalStorage, KeyExists } from './LocalStorage'
+
+const url = `//cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`
+pdfjs.GlobalWorkerOptions.workerSrc = url
 
 const labels = [
     {
@@ -20,9 +23,8 @@ function PDF(props){
 
     const [docWidth, setDocWidth] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
-    const [annotations, updateAnnotations] = useState(KeyExists(props.id)?GetLocalStorage(props.id):[])
+    const [annotations, updateAnnotations] = useState([])
     const [selectedLabel, setSelectedLabel] = useState(null)
-    const [pagesLoaded, setPagesLoaded] = useState(false)
     
     useEffect(()=>{
         function setWidth(){
@@ -118,7 +120,7 @@ function PDF(props){
                 pageIndex: page.pageIndex,
                 label: selectedLabel
             })
-
+            SaveLocalStorage(props.id, newArr)
             updateAnnotations(newArr)
         }
 
@@ -153,7 +155,6 @@ function PDF(props){
                 box.remove();
             }
         }
-        SaveLocalStorage(props.id, annotations)
         function AppendAnnotationBoxes(){
             RemoveAnnotationBoxes()
             for(let annotation of annotations){
@@ -183,7 +184,7 @@ function PDF(props){
             window.removeEventListener("resize", AppendAnnotationBoxes);
         }
         
-    }, [annotations, docWidth, pagesLoaded])
+    }, [annotations, docWidth])
 
     return (
         <div className='doc-annotations-container'>
@@ -270,7 +271,8 @@ function PDF(props){
                                         className={`${props.id}_page_${num}`}
                                         key={`pageno_${num}`}
                                         onRenderSuccess={()=>{
-                                            setPagesLoaded(true)
+                                            // setPagesLoaded(true)
+                                            updateAnnotations(GetLocalStorage(props.id))
                                         }}/>
                                 )
                             })
