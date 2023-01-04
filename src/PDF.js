@@ -242,6 +242,7 @@ function PDF(props){
                                                     onClick={()=>{
                                                         let arr = [...annotations]
                                                         arr.splice(index, 1);
+                                                        SaveLocalStorage(props.id, arr)
                                                         updateAnnotations(arr);
                                                     }}/>
                                             </td>
